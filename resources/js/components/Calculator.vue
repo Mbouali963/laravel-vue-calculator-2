@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
     name: 'Calculator',
     props: {
@@ -44,7 +45,7 @@ export default {
                 this.calculatorValue = '';
             }
 
-            // clear
+            // calculate
             if(['/', '-','+', '*'].includes(n)){
                 this.operator = n;
                 this.previousCalculatorValue = this.calculatorValue;
@@ -52,9 +53,21 @@ export default {
             }
 
             if(n === '='){
-                this.calculatorValue = eval(
-                    this.previousCalculatorValue + this.operator + this.calculatorValue
-                );
+                let self = this;
+                axios.post('./calculate', {
+                    number_1: this.previousCalculatorValue,
+                    number_2: this.calculatorValue,
+                    operator: this.operator,
+                })
+                .then(function (response) {
+                    if(response.data.message == null)
+                        self.calculatorValue = response.data.result
+                    else
+                        self.calculatorValue = response.data.message
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
 
                 this.previousCalculatorValue = '';
                 this.operator = null;
